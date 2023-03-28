@@ -4,9 +4,12 @@ const AppError = require("./middleware/AppError");
 const { INVALID_SUBSCRIPTION } = require("./middleware/errorCodes");
 const errorHandler = require("./middleware/app.js");
 const { tryCatch } = require("./middleware/tryCatch");
+const logger = require('./middleware/logger');
 const app = express();
 
 app.use(express.json());
+app.use(logger);
+app.use(errorHandler);
 
 const books = [
   { id: 1, name: "book1" },
@@ -73,7 +76,6 @@ function validateBook(book) {
   return schema.validate(book);
 }
 
-app.use(errorHandler);
 
 const port = process.env.port || 3000;
 
