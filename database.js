@@ -1,5 +1,7 @@
 const {Client} = require('pg')
+const { PrismaClient } = require('@prisma/client');
 
+const prisma = new PrismaClient();
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -14,32 +16,18 @@ const client = new Client({
 })
 
 
-const execute = async (query) => {
-    try {
-        await client.connect()
-        .then(() => console.log("Connected successfuly"))
-        .catch(e => console.log(e));     
-        await client.query(query)
-        .then(() => client.query("select * from Books "))
-        .then(results => console.table(results.rows));  
-        return true;
-    } catch (error) {
-        console.error(error.stack);
-        return false;
-    } 
-};
 
-const text = `
-    CREATE TABLE IF NOT EXISTS "Books" (
-	    "id" SERIAL,
-	    "name" VARCHAR(100) NOT NULL,
-	    PRIMARY KEY ("id")
-    );`;
+async function main(){
+    const newbooks = await prisma.books.findMany()
+   console.log(newbooks)
+}
 
-execute(text).then(result => {
-    if (result) {
-        console.log('Table created');
-    }
-});
 
-module.exports = client;
+main().catch(e=> {
+        console.error(e.message)
+    })
+    .finally(async () => {
+        await prisma.$disconnect()
+    })
+
+module.exports =  client;
